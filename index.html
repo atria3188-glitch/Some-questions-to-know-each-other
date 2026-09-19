@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Getting to Know Each Other</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:linear-gradient(135deg,#f5f0ff,#eaf6ff);
+color:#222
+}
+
+.container{
+max-width:720px;
+margin:auto;
+padding:20px 15px
+}
+
+.card{
+background:white;
+border-radius:20px;
+padding:22px;
+box-shadow:0 8px 30px #0001;
+margin-bottom:18px
+}
+
+h1{
+text-align:center;
+font-size:27px;
+margin:5px 0 8px
+}
+
+.subtitle{
+text-align:center;
+color:#777;
+margin-bottom:25px;
+line-height:1.5
+}
+
+h2{
+font-size:21px
+}
+
+.section{
+font-size:13px;
+color:#777;
+text-transform:uppercase;
+letter-spacing:1px;
+margin:28px 0 14px
+}
+
+.question{
+font-size:18px;
+font-weight:bold;
+line-height:1.45;
+margin-bottom:10px
+}
+
+.guide{
+background:#f5f5f7;
+padding:13px;
+border-radius:10px;
+font-size:14px;
+color:#666;
+line-height:1.5;
+margin-bottom:10px
+}
+
+.guide b{
+color:#333
+}
+
+textarea,input{
+width:100%;
+padding:13px;
+border:1px solid #ddd;
+border-radius:10px;
+font-size:15px;
+font-family:Arial,sans-serif
+}
+
+textarea{
+min-height:110px;
+resize:vertical
+}
+
+input{
+margin-top:8px
+}
+
+button{
+width:100%;
+padding:14px;
+border:0;
+border-radius:10px;
+background:#333;
+color:white;
+font-size:15px;
+margin-top:18px
+}
+
+button.secondary{
+background:#eee;
+color:#222
+}
+
+.hidden{
+display:none
+}
+
+.answer{
+background:#f6f6f6;
+padding:13px;
+border-radius:10px;
+white-space:pre-wrap;
+line-height:1.5;
+margin-bottom:22px
+}
+
+.small{
+font-size:14px;
+color:#777;
+line-height:1.5
+}
+
+.divider{
+border:0;
+border-top:1px solid #ddd;
+margin:25px 0
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- SETUP -->
+<div id="setup" class="card">
+
+<h1>Getting to Know Each Other</h1>
+
+<p class="subtitle">
+Take your time and answer honestly.<br>
+Your answers will stay on your phone until you choose to share them.
+</p>
+
+<b>Your name</b>
+
+<input
+id="name"
+placeholder="Enter your name"
+>
+
+<button onclick="start()">
+Start
+</button>
+
+</div>
+
+
+<!-- QUESTIONNAIRE -->
+<div id="form" class="card hidden">
+
+<h1>Getting to Know Each Other</h1>
+
+<p class="subtitle">
+Answer all 34 questions below.
+</p>
+
+<div id="questions"></div>
+
+<button onclick="submitAnswers()">
+Submit Answers
+</button>
+
+</div>
+
+
+<!-- FINISHED -->
+<div id="finished" class="card hidden">
+
+<h2>You're finished</h2>
+
+<p class="small">
+Your answers have been saved on this phone.
+Copy your Answer Code and send it to the other person.
+</p>
+
+<b>Your Answer Code</b>
+
+<textarea
+id="myCode"
+readonly
+></textarea>
+
+<button onclick="copyCode()">
+Copy My Answer Code
+</button>
+
+<hr class="divider">
+
+<h2>Reveal Their Answers</h2>
+
+<p class="small">
+Paste the other person's Answer Code below.
+</p>
+
+<textarea
+id="otherCode"
+placeholder="Paste their answer code here..."
+></textarea>
+
+<button onclick="reveal()">
+Reveal Answers
+</button>
+
+</div>
+
+
+<!-- RESULTS -->
+<div id="results" class="card hidden">
+
+<h2 id="resultTitle"></h2>
+
+<div id="resultContent"></div>
+
+</div>
+
+</div>
+
+
+<script>
+
+const questions = [
+
+["About Each Other",
+"How would you describe yourself?",
+"Your personality, how you behave around people, and what kind of person you think you are."],
+
+["About Each Other",
+"What are your biggest strengths and weaknesses?",
+"What you’re good at, what you struggle with, and what you’re trying to improve."],
+
+["About Each Other",
+"What do people often misunderstand about you?",
+"Something people assume about you that isn’t actually true."],
+
+["About Each Other",
+"What usually stresses you out?",
+"Work, relationships, money, family, uncertainty, pressure, etc."],
+
+["About Each Other",
+"What do you do when you’re in a bad mood?",
+"Do you want to be alone, talk to someone, sleep, go out, or distract yourself?"],
+
+["About Each Other",
+"When you’re upset, do you prefer to talk about it or deal with it yourself?",
+"Do you want to talk immediately, or do you need time before talking?"],
+
+["About Each Other",
+"How much alone time do you usually need?",
+"How much personal time you need even when you’re in a relationship."],
+
+["About Each Other",
+"What makes you feel genuinely cared for?",
+"Actions, words, time, checking in, physical affection, remembering small things, etc."],
+
+
+["Family & Personal Life",
+"What’s your relationship with your family like?",
+"How close you are, how often you interact, and how important family is to you."],
+
+["Family & Personal Life",
+"Who do you usually go to when you have a problem?",
+"Who you trust and feel comfortable talking to."],
+
+["Family & Personal Life",
+"Is there an experience that shaped who you are today?",
+"An important experience that changed how you think or behave."],
+
+
+["Love & Relationships",
+"What kind of relationship are you looking for?",
+"Casual, serious, long-term, marriage-minded, or just seeing where things go."],
+
+["Love & Relationships",
+"What does being in love mean to you?",
+"What love means beyond just having feelings for someone."],
+
+["Love & Relationships",
+"What do you value most in a relationship?",
+"Trust, loyalty, communication, effort, respect, honesty, security, etc."],
+
+["Love & Relationships",
+"What makes a relationship healthy to you?",
+"How you think couples should communicate, respect each other, handle problems, and maintain their own lives."],
+
+["Love & Relationships",
+"How do you want to be loved and cared for?",
+"What makes you personally feel loved."],
+
+["Love & Relationships",
+"What do you need from your partner to feel secure?",
+"Reassurance, consistency, communication, honesty, quality time, etc."],
+
+["Love & Relationships",
+"How often would you like to see each other?",
+"Your ideal frequency and what happens when one person is busy."],
+
+["Love & Relationships",
+"Should couples still have their own lives and personal space?",
+"Your thoughts about friends, hobbies, alone time, privacy, and independence."],
+
+["Love & Relationships",
+"What are healthy boundaries with the opposite sex?",
+"What you’re comfortable or uncomfortable with when your partner interacts with other people."],
+
+["Love & Relationships",
+"What does commitment mean to you?",
+"Being exclusive, being loyal, making an effort, planning a future, staying through difficult times, etc."],
+
+["Love & Relationships",
+"How do you show someone that you’re serious about them?",
+"Actions you would take when you genuinely want a relationship with someone."],
+
+["Love & Relationships",
+"Would you be comfortable making the relationship public?",
+"Whether you’re comfortable telling friends/family or posting about the relationship."],
+
+
+["Communication & Conflict",
+"When you’re upset or have an argument, how do you usually deal with it?",
+"Do you talk immediately, become quiet, need space, or want reassurance?"],
+
+["Communication & Conflict",
+"When you’re angry, do you prefer to solve things immediately or take some time first?",
+"What you need during an argument and how long you normally need to calm down."],
+
+["Communication & Conflict",
+"What is something you absolutely cannot tolerate in a relationship?",
+"Behaviours that would cross a serious line for you."],
+
+["Communication & Conflict",
+"When there’s a problem between us, are you willing to work through it together?",
+"Whether you’re willing to communicate, compromise, understand each other, and find a solution."],
+
+["Communication & Conflict",
+"What would make you slowly lose feelings for someone?",
+"Things that would gradually make you feel disconnected from your partner."],
+
+
+["About Us",
+"What do you think is our biggest difference?",
+"Personality, communication, lifestyle, expectations, emotional needs, etc."],
+
+["About Us",
+"What do you think we need to work on if we want this relationship to work?",
+"Something you think both of you could improve together."],
+
+["About Us",
+"Is there anything about me or this relationship that makes you feel unsure or afraid?",
+"Any worries, fears, doubts, or things you’re still trying to understand."],
+
+["About Us",
+"What’s something about yourself you want me to understand better?",
+"Something important about you that you feel the other person may not fully understand yet."],
+
+["About Us",
+"What do you enjoy most about being with me?",
+"What you genuinely like about your connection and time together."],
+
+["About Us",
+"What do you hope we can experience or build together in the future?",
+"Experiences, goals, lifestyle, relationship milestones, or what you hope the relationship becomes."]
+
+];
+
+
+let myName="";
+
+
+function start(){
+
+myName=document
+.getElementById("name")
+.value
+.trim();
+
+if(!myName){
+alert("Please enter your name.");
+return;
+}
+
+document
+.getElementById("setup")
+.classList.add("hidden");
+
+document
+.getElementById("form")
+.classList.remove("hidden");
+
+buildQuestions();
+
+}
+
+
+function buildQuestions(){
+
+let html="";
+let lastSection="";
+
+questions.forEach(function(q,i){
+
+if(q[0]!==lastSection){
+
+html+=`
+<div class="section">
+${q[0]}
+</div>
+`;
+
+lastSection=q[0];
+
+}
+
+html+=`
+
+<div class="question">
+${i+1}. ${q[1]}
+</div>
+
+<div class="guide">
+<b>Guide:</b> ${q[2]}
+</div>
+
+<textarea
+id="answer${i}"
+placeholder="Your answer..."
+></textarea>
+
+`;
+
+});
+
+document.getElementById("questions").innerHTML=html;
+
+}
+
+
+function submitAnswers(){
+
+let answers=[];
+
+for(let i=0;i<questions.length;i++){
+
+let answer=
+document
+.getElementById("answer"+i)
+.value
+.trim();
+
+if(!answer){
+
+alert(
+"Please answer Question "+(i+1)+" before submitting."
+);
+
+document
+.getElementById("answer"+i)
+.focus();
+
+return;
+
+}
+
+answers.push(answer);
+
+}
+
+
+const data={
+name:myName,
+answers:answers
+};
+
+const code=encode(data);
+
+document.getElementById("myCode").value=code;
+
+document
+.getElementById("form")
+.classList.add("hidden");
+
+document
+.getElementById("finished")
+.classList.remove("hidden");
+
+window.scrollTo(0,0);
+
+}
+
+
+function encode(data){
+
+return btoa(
+unescape(
+encodeURIComponent(
+JSON.stringify(data)
+)
+)
+);
+
+}
+
+
+function decode(code){
+
+return JSON.parse(
+decodeURIComponent(
+escape(
+atob(code.trim())
+)
+)
+);
+
+}
+
+
+function copyCode(){
+
+const code=
+document.getElementById("myCode").value;
+
+navigator.clipboard
+.writeText(code)
+.then(function(){
+
+alert("Answer code copied.");
+
+})
+.catch(function(){
+
+alert("Please copy the code manually.");
+
+});
+
+}
+
+
+function reveal(){
+
+try{
+
+const code=
+document
+.getElementById("otherCode")
+.value
+.trim();
+
+const other=decode(code);
+
+if(
+!other.name ||
+!other.answers ||
+other.answers.length!==34
+){
+
+throw new Error();
+
+}
+
+
+let html="";
+
+questions.forEach(function(q,i){
+
+html+=`
+
+<div class="section">
+${i+1}. ${q[0]}
+</div>
+
+<div class="question">
+${q[1]}
+</div>
+
+<p><b>${escapeHTML(myName)}</b></p>
+
+<div class="answer">
+${escapeHTML(
+document.getElementById("answer"+i)
+?
+document.getElementById("answer"+i).value
+:
+""
+)}
+</div>
+
+<p><b>${escapeHTML(other.name)}</b></p>
+
+<div class="answer">
+${escapeHTML(other.answers[i])}
+</div>
+
+`;
+
+});
+
+
+/*
+Because the questionnaire page is hidden,
+we need to get your answers from the
+submitted code.
+*/
+
+const myData=decode(
+document.getElementById("myCode").value
+);
+
+html="";
+
+questions.forEach(function(q,i){
+
+html+=`
+
+<div class="section">
+${i+1}. ${q[0]}
+</div>
+
+<div class="question">
+${q[1]}
+</div>
+
+<p><b>${escapeHTML(myData.name)}</b></p>
+
+<div class="answer">
+${escapeHTML(myData.answers[i])}
+</div>
+
+<p><b>${escapeHTML(other.name)}</b></p>
+
+<div class="answer">
+${escapeHTML(other.answers[i])}
+</div>
+
+`;
+
+});
+
+
+document.getElementById("resultTitle").textContent=
+myData.name+" & "+other.name;
+
+document.getElementById("resultContent").innerHTML=
+html;
+
+document
+.getElementById("results")
+.classList.remove("hidden");
+
+document
+.getElementById("results")
+.scrollIntoView({
+behavior:"smooth"
+});
+
+}
+
+catch(e){
+
+alert(
+"Invalid answer code. Please make sure you copied the complete code."
+);
+
+}
+
+}
+
+
+function escapeHTML(text){
+
+return text.replace(
+/[&<>"']/g,
+function(c){
+
+return{
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[c];
+
+}
+);
+
+}
+
+</script>
+
+</body>
+</html>
